@@ -1,6 +1,6 @@
-local SpeedHubX = loadstring(game:HttpGet("https://raw.githubusercontent.com/NovaHubOnTop/Private/refs/heads/main/Library"))()
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/NovaHubOnTop/Private/refs/heads/main/Library"))()
 
-local Window = SpeedHubX:CreateWindow({
+local Window = Fluent:CreateWindow({
     Title = "Nova Hub Paid Version | Made By Encrypted " .. Fluent.Version,
     SubTitle = "by Encrypted",
     TabWidth = 160,
