@@ -1,1 +1,82 @@
+local SpeedHubX = loadstring(game:HttpGet("https://raw.githubusercontent.com/NovaHubOnTop/Private/refs/heads/main/Library"))()
 
+local Window = SpeedHubX:CreateWindow({
+    Title = "Nova Hub Paid Version | Made By Encrypted " .. Fluent.Version,
+    SubTitle = "by Encrypted",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tabs = {
+    Killing = Window:AddTab({ Title = "Killing", Icon = "" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
+
+local Toggle = Tabs.Killing:AddToggle("Auto Kill", { Title = "", Default = false })
+
+Toggle:OnChanged(function(state)
+    _G.autoPunchanim = state -- Set global toggle state
+
+    if state then
+        local player = game.Players.LocalPlayer
+        local playerName = player.Name
+        local punchTool =
+            player.Backpack:FindFirstChild("Punch") or
+            game.Workspace:FindFirstChild(playerName):FindFirstChild("Punch")
+
+        if not punchTool then
+            warn("Punch tool not found")
+            return
+        end
+
+        -- Equip the tool
+        if punchTool.Parent ~= game.Workspace:FindFirstChild(playerName) then
+            punchTool.Parent = game.Workspace:FindFirstChild(playerName)
+        end
+
+        -- Function to fire touch interest
+        local function fireTouch(target)
+            if target then
+                pcall(function()
+                    firetouchinterest(punchTool.Handle, target, 1) -- Simulate touch (enter)
+                    wait()
+                    firetouchinterest(punchTool.Handle, target, 0) -- Simulate touch (leave)
+                end)
+            end
+        end
+
+        -- Main loop
+        task.spawn(function()
+            while _G.autoPunchanim do
+                local players = game.Players:GetPlayers()
+                table.remove(players, table.find(players, player)) -- Remove local player
+
+                if #players > 0 then
+                    -- Assign a target to each hand
+                    local target1 = players[math.random(1, #players)]
+                    local target2
+                    repeat
+                        target2 = players[math.random(1, #players)]
+                    until target1 ~= target2 or #players == 1 -- Ensure different targets
+
+                    -- Fire punch event
+                    game.Players.LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                    game.Players.LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+
+                    -- Fire touch interest
+                    if target1 and target1.Character then
+                        fireTouch(target1.Character:FindFirstChild("HumanoidRootPart"))
+                    end
+                    if target2 and target2.Character then
+                        fireTouch(target2.Character:FindFirstChild("HumanoidRootPart"))
+                    end
+                end
+
+                wait(0.1) -- Punch every 0.1 seconds
+            end
+        end)
+    end
+end)
