@@ -152,7 +152,7 @@ Toggle:OnChanged(function()
             for i = 1, loopCount do
                 game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("orbEvent"):FireServer(unpack(args))
             end
-            wait(0.3)
+            wait(0.25)
         end
     end
 end)
