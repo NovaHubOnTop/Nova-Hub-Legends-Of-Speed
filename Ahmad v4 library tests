@@ -152,7 +152,7 @@ Toggle:OnChanged(function()
             for i = 1, loopCount do
                 game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("orbEvent"):FireServer(unpack(args))
             end
-            wait(0.25)
+            wait(0.2)
         end
     end
 end)
@@ -230,14 +230,19 @@ local Toggle = Tabs.Eggs:AddToggle("Auto Eggs", {
 
 Toggle:OnChanged(function()
     print("Toggle changed:", Toggle.Value)
+    
     if Toggle.Value then
-        local selectedEgg = Dropdown.Value
-        local args = {
-            [1] = "openCrystal",
-            [2] = selectedEgg
-        }
+        -- Continuously open the selected egg every 0.1 seconds
+        while Toggle.Value do
+            local selectedEgg = Dropdown.Value
+            local args = {
+                [1] = "openCrystal",
+                [2] = selectedEgg
+            }
 
-        game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("openCrystalRemote"):InvokeServer(unpack(args))
+            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("openCrystalRemote"):InvokeServer(unpack(args))
+            
+            wait(0.1)  -- Wait for 0.1 seconds before repeating
+        end
     end
 end)
-
