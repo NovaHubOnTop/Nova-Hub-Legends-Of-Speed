@@ -12,50 +12,36 @@ local Window = NovaHub:CreateWindow({
     MinimizeKey = Enum.KeyCode.LeftControl -- Used when there's no MinimizeKeybind
 })
 
-Main = Window:AddTab({ Title = "Main", Icon = "scan-face" })
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" })
+}
 
+-- Discord Server Button
 Tabs.Main:AddButton({
     Title = "Discord Server",
     Description = "Copy discord server link",
     Callback = function()
-        -- Copy the Discord server link to the clipboard
         setclipboard("https://discord.gg/ztGskBVU")
-        
-        -- Display a dialog to notify the user
         Window:Dialog({
             Title = "Discord Link Copied",
             Content = "The Discord server link has been copied to your clipboard.",
             Buttons = {
-                {
-                    Title = "OK",
-                    Callback = function()
-                        print("User acknowledged the dialog.")
-                    end
-                }
+                { Title = "OK", Callback = function() end }
             }
         })
     end
 })
 
-Tabs.Main:AddParagraph({
-    Title = "Local Player",
-    Content = ""
-})
-
+-- WalkSpeed Input
 local WalkSpeedInput = Tabs.Main:AddInput("WalkSpeed", {
     Title = "WalkSpeed",
-    Default = "16", -- Default walk speed value
+    Default = "16",
     Placeholder = "Enter WalkSpeed",
-    Numeric = true, -- Only allows numbers
-    Finished = true, -- Only calls callback when you press enter
-    Callback = function(Value)
-        print("WalkSpeed input changed:", Value)
-    end
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value) end
 })
-
-WalkSpeedInput:OnChanged(function()
-    print("WalkSpeed input updated:", WalkSpeedInput.Value)
-end)
 
 Tabs.Main:AddButton({
     Title = "Apply WalkSpeed",
@@ -67,46 +53,27 @@ Tabs.Main:AddButton({
             Window:Dialog({
                 Title = "WalkSpeed Applied",
                 Content = "WalkSpeed has been set to " .. walkSpeedValue,
-                Buttons = {
-                    {
-                        Title = "OK",
-                        Callback = function()
-                            print("WalkSpeed applied.")
-                        end
-                    }
-                }
+                Buttons = { { Title = "OK", Callback = function() end } }
             })
         else
             Window:Dialog({
                 Title = "Invalid Input",
                 Content = "Please enter a valid number for WalkSpeed.",
-                Buttons = {
-                    {
-                        Title = "OK",
-                        Callback = function()
-                            print("Invalid WalkSpeed input.")
-                        end
-                    }
-                }
+                Buttons = { { Title = "OK", Callback = function() end } }
             })
         end
     end
 })
 
+-- JumpPower Input
 local JumpPowerInput = Tabs.Main:AddInput("JumpPower", {
     Title = "JumpPower",
-    Default = "50", -- Default jump power value
+    Default = "50",
     Placeholder = "Enter JumpPower",
-    Numeric = true, -- Only allows numbers
-    Finished = true, -- Only calls callback when you press enter
-    Callback = function(Value)
-        print("JumpPower input changed:", Value)
-    end
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value) end
 })
-
-JumpPowerInput:OnChanged(function()
-    print("JumpPower input updated:", JumpPowerInput.Value)
-end)
 
 Tabs.Main:AddButton({
     Title = "Apply JumpPower",
@@ -118,40 +85,24 @@ Tabs.Main:AddButton({
             Window:Dialog({
                 Title = "JumpPower Applied",
                 Content = "JumpPower has been set to " .. jumpPowerValue,
-                Buttons = {
-                    {
-                        Title = "OK",
-                        Callback = function()
-                            print("JumpPower applied.")
-                        end
-                    }
-                }
+                Buttons = { { Title = "OK", Callback = function() end } }
             })
         else
             Window:Dialog({
                 Title = "Invalid Input",
                 Content = "Please enter a valid number for JumpPower.",
-                Buttons = {
-                    {
-                        Title = "OK",
-                        Callback = function()
-                            print("Invalid JumpPower input.")
-                        end
-                    }
-                }
+                Buttons = { { Title = "OK", Callback = function() end } }
             })
         end
     end
 })
 
-AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "scan-face" })
-
+-- AutoFarm Tab with City, Orb, and Farming Mode Dropdowns
 Tabs.AutoFarm:AddParagraph({
     Title = "Auto Farming",
     Content = "Automate orb collection and farming actions."
 })
 
--- Dropdown for selecting city
 local CityDropdown = Tabs.AutoFarm:AddDropdown("Select City", {
     Title = "Select City",
     Values = {"City", "Snow City", "Magma City", "Jungle City"},
@@ -161,11 +112,6 @@ local CityDropdown = Tabs.AutoFarm:AddDropdown("Select City", {
 
 CityDropdown:SetValue("City")
 
-CityDropdown:OnChanged(function(Value)
-    print("City selected:", Value)
-end)
-
--- Dropdown for selecting orb
 local OrbDropdown = Tabs.AutoFarm:AddDropdown("Select Orb", {
     Title = "Select Orb",
     Values = {"Red Orb", "Orange Orb", "Blue Orb", "Yellow Orb", "Gems", "Ethereal Orb"},
@@ -175,11 +121,6 @@ local OrbDropdown = Tabs.AutoFarm:AddDropdown("Select Orb", {
 
 OrbDropdown:SetValue("Red Orb")
 
-OrbDropdown:OnChanged(function(Value)
-    print("Orb selected:", Value)
-end)
-
--- Dropdown for selecting farming mode
 local FarmingModeDropdown = Tabs.AutoFarm:AddDropdown("Select Farming Mode", {
     Title = "Select Farming Mode",
     Values = {"Slow", "Normal", "Fast", "Super Fast"},
@@ -189,11 +130,7 @@ local FarmingModeDropdown = Tabs.AutoFarm:AddDropdown("Select Farming Mode", {
 
 FarmingModeDropdown:SetValue("Normal")
 
-FarmingModeDropdown:OnChanged(function(Value)
-    print("Farming Mode selected:", Value)
-end)
-
--- Toggle for starting the farming
+-- Toggle for Farming
 local Toggle = Tabs.AutoFarm:AddToggle("Start Farming", {Title = "Start Farming", Default = false})
 
 Toggle:OnChanged(function()
@@ -201,19 +138,19 @@ Toggle:OnChanged(function()
     local orb = OrbDropdown.Value
     
     if Toggle.Value then
-        -- When toggle is on, start farming indefinitely
-        while Toggle.Value do
-            local args = {
-                [1] = "collectOrb",
-                [2] = orb, -- Replace "Red Orb" with selected orb
-                [3] = city -- Replace "City" with selected city
-            }
+        -- Use spawn to avoid freezing the UI during farming loop
+        spawn(function()
+            while Toggle.Value do
+                local args = {
+                    [1] = "collectOrb",
+                    [2] = orb, 
+                    [3] = city
+                }
 
-            wait(0.1)
-
-            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("orbEvent"):FireServer(unpack(args))
-            
-            wait(0.1)
-        end
+                game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("orbEvent"):FireServer(unpack(args))
+                
+                wait(0.1)
+            end
+        end)
     end
 end)
