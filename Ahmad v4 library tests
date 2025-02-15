@@ -215,9 +215,7 @@ AutoHoopToggle:OnChanged(function()
     end
 end)
 
-
-
--- Dropdown for selecting the egg
+-- Eggs Tab
 local Dropdown = Tabs.Eggs:AddDropdown("Select Egg", {
     Title = "Select Egg",
     Values = {
@@ -229,7 +227,7 @@ local Dropdown = Tabs.Eggs:AddDropdown("Select Egg", {
     Default = 1,
 })
 
-Dropdown:SetValue("Jungle Crystal")  -- Default to "Jungle Crystal"
+Dropdown:SetValue("Jungle Crystal")
 
 Dropdown:OnChanged(function(Value)
 end)
@@ -258,7 +256,7 @@ Toggle:OnChanged(function()
 end)
 
 -- Teleports Tab
-TeleportsTab:AddButton({
+Tabs.Teleports:AddButton({
     Title = "City",
     Description = "Teleport to City",
     Callback = function()
@@ -266,7 +264,7 @@ TeleportsTab:AddButton({
     end
 })
 
-TeleportsTab:AddButton({
+Tabs.Teleports:AddButton({
     Title = "Snow City",
     Description = "Teleport to Snow City",
     Callback = function()
@@ -274,7 +272,7 @@ TeleportsTab:AddButton({
     end
 })
 
-TeleportsTab:AddButton({
+Tabs.Teleports:AddButton({
     Title = "Magma City",
     Description = "Teleport to Magma City",
     Callback = function()
@@ -282,7 +280,7 @@ TeleportsTab:AddButton({
     end
 })
 
-TeleportsTab:AddButton({
+Tabs.Teleports:AddButton({
     Title = "Legends Highway",
     Description = "Teleport to Legends Highway",
     Callback = function()
@@ -290,7 +288,7 @@ TeleportsTab:AddButton({
     end
 })
 
-TeleportsTab:AddButton({
+Tabs.Teleports:AddButton({
     Title = "Space",
     Description = "Teleport to Space",
     Callback = function()
@@ -298,7 +296,7 @@ TeleportsTab:AddButton({
     end
 })
 
-TeleportsTab:AddButton({
+Tabs.Teleports:AddButton({
     Title = "Desert",
     Description = "Teleport to Desert",
     Callback = function()
