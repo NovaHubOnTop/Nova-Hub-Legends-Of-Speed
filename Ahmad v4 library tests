@@ -210,40 +210,13 @@ Tabs.AutoFarm:AddToggle("Auto Hoop", {Title = "Auto Hoop", Default = false})
 Tabs.AutoFarm.Toggle.OnChanged(function(Value)
     getgenv().AutoHoop = Value
     spawn(function()
-        while getgenv().AutoHoop == true do
+        while getgenv().AutoHoop do
             for i, v in pairs(game:GetService("Workspace").Hoops:GetChildren()) do
-                firetouchinterest(v, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 0)
-                wait()
-                firetouchinterest(v, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 1)
+                -- Teleport each hoop to the player's character
+                v:SetPrimaryPartCFrame(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
+                wait(0.1)  -- Delay to prevent lag and ensure smooth teleportation
             end
         end
     end)
 end)
 
--- Eggs Tab
-local EggDropdown = Tabs.Eggs:AddDropdown("Chose Egg", {
-    Title = "Chose Egg",
-    Values = {"Yellow Crystal", "Blue Crystal", "Red Crystal", "Lightning Crystal", "Inferno Crystal", "Lava Crystal", "Snow Crystal", 
-              "Electro Legends Crystal", "Space Crystal", "Alien Crystal", "Electro Crystal", "Desert Crystal", "Jungle Crystal"},
-    Multi = false,
-    Default = 1
-})
-EggDropdown:SetValue("Yellow Crystal")
-
--- Auto Egg Toggle
-local AutoEggToggle = Tabs.Eggs:AddToggle("Auto Egg", {Title = "Auto Egg", Default = false})
-
-AutoEggToggle:OnChanged(function(Value)
-    _G.autoHatch = Value
-    _G.selectEgg = EggDropdown.Value
-
-    if _G.autoHatch then
-        spawn(function()
-            while _G.autoHatch do
-                local args = { [1] = "openCrystal", [2] = _G.selectEgg }
-                game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("openCrystalRemote"):InvokeServer(unpack(args))
-                wait(0.01)
-            end
-        end)
-    end
-end)
