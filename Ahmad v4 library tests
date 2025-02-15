@@ -127,7 +127,7 @@ Tabs.AutoFarm:AddParagraph({
         Content = ""
     })
 
--- Weight Tool Toggle
+-- Equip Weight Tool Toggle
 local WeightToggle = Tabs.AutoFarm:AddToggle("Weight", {Title = "Equips Weight Tool", Default = false })
 
 WeightToggle:OnChanged(function(Value)
@@ -136,6 +136,7 @@ WeightToggle:OnChanged(function(Value)
             local backpack = game.Players.LocalPlayer.Backpack
             local weightTool = backpack:FindFirstChild("Weight")
             if weightTool then
+                -- Ensure the tool is re-equipped
                 weightTool.Parent = backpack
             end
             wait(0.1)  -- Adjust the wait time for equipping
@@ -143,39 +144,7 @@ WeightToggle:OnChanged(function(Value)
     end
 end)
 
--- Pushups Tool Toggle
-local PushupsToggle = Tabs.AutoFarm:AddToggle("Pushups", {Title = "Equips Pushups Tool", Default = false })
-
-PushupsToggle:OnChanged(function(Value)
-    if Value then
-        while PushupsToggle.Value do
-            local backpack = game.Players.LocalPlayer.Backpack
-            local pushupsTool = backpack:FindFirstChild("Pushups")
-            if pushupsTool then
-                pushupsTool.Parent = backpack
-            end
-            wait(0.1)  -- Adjust the wait time for equipping
-        end
-    end
-end)
-
--- Handstands Tool Toggle
-local HandstandsToggle = Tabs.AutoFarm:AddToggle("Handstands", {Title = "Equips Handstands Tool", Default = false })
-
-HandstandsToggle:OnChanged(function(Value)
-    if Value then
-        while HandstandsToggle.Value do
-            local backpack = game.Players.LocalPlayer.Backpack
-            local handstandsTool = backpack:FindFirstChild("Handstands")
-            if handstandsTool then
-                handstandsTool.Parent = backpack
-            end
-            wait(0.1)  -- Adjust the wait time for equipping
-        end
-    end
-end)
-
--- Situps Tool Toggle
+-- Equip Situps Tool Toggle
 local SitupsToggle = Tabs.AutoFarm:AddToggle("Situps", {Title = "Equips Situps Tool", Default = false })
 
 SitupsToggle:OnChanged(function(Value)
@@ -184,7 +153,42 @@ SitupsToggle:OnChanged(function(Value)
             local backpack = game.Players.LocalPlayer.Backpack
             local situpsTool = backpack:FindFirstChild("Situps")
             if situpsTool then
+                -- Ensure the tool is re-equipped
                 situpsTool.Parent = backpack
+            end
+            wait(0.1)  -- Adjust the wait time for equipping
+        end
+    end
+end)
+
+-- Equip Handstands Tool Toggle
+local HandstandsToggle = Tabs.AutoFarm:AddToggle("Handstands", {Title = "Equips Handstands Tool", Default = false })
+
+HandstandsToggle:OnChanged(function(Value)
+    if Value then
+        while HandstandsToggle.Value do
+            local backpack = game.Players.LocalPlayer.Backpack
+            local handstandsTool = backpack:FindFirstChild("Handstands")
+            if handstandsTool then
+                -- Ensure the tool is re-equipped
+                handstandsTool.Parent = backpack
+            end
+            wait(0.1)  -- Adjust the wait time for equipping
+        end
+    end
+end)
+
+-- Equip Pushups Tool Toggle
+local PushupsToggle = Tabs.AutoFarm:AddToggle("Pushups", {Title = "Equips Pushups Tool", Default = false })
+
+PushupsToggle:OnChanged(function(Value)
+    if Value then
+        while PushupsToggle.Value do
+            local backpack = game.Players.LocalPlayer.Backpack
+            local pushupsTool = backpack:FindFirstChild("Pushups")
+            if pushupsTool then
+                -- Ensure the tool is re-equipped
+                pushupsTool.Parent = backpack
             end
             wait(0.1)  -- Adjust the wait time for equipping
         end
