@@ -14,7 +14,8 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Client = Window:AddTab({ Title = "Client", Icon = "" }),
-    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" })
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" }),
+    Killing = Window:AddTab({ Title = "Killing", Icon = "settings" })
 }
 
 Tabs.Client:AddParagraph({
@@ -126,3 +127,101 @@ Tabs.AutoFarm:AddParagraph({
         Content = ""
     })
 
+-- Function to update the Whitelist dropdown with all player names in the server
+local function updateWhitelistDropdown()
+    local playerNames = {}
+    for _, player in pairs(game.Players:GetPlayers()) do
+        table.insert(playerNames, player.Name)
+    end
+
+    -- Update the dropdown values with all player names
+    Whitelist:SetValues(playerNames)
+end
+
+-- Initialize the Whitelist Dropdown
+local Whitelist = Tabs.Killing:AddDropdown("Whitelist", {
+    Title = "Whitelist",
+    Description = "Select players to exclude from Auto Kill.",
+    Values = {}, -- Initial empty values, will be updated
+    Multi = true,
+    Default = {} -- No players selected initially
+})
+
+-- Update the Whitelist dropdown with players when the script starts
+updateWhitelistDropdown()
+
+-- Monitor players joining and leaving to update the dropdown dynamically
+game.Players.PlayerAdded:Connect(function()
+    updateWhitelistDropdown()
+end)
+
+game.Players.PlayerRemoving:Connect(function()
+    updateWhitelistDropdown()
+end)
+
+-- Create Auto Kill Toggle
+local AutoKillToggle = Tabs.Killing:AddToggle("AutoKill", {
+    Title = "Auto Kill",
+    Default = false
+})
+
+AutoKillToggle:OnChanged(function(state)
+    -- Check if Auto Kill is enabled or disabled
+    if state then
+        local player = game.Players.LocalPlayer
+        local playerName = player.Name
+        local punchTool =
+            player.Backpack:FindFirstChild("Punch") or
+            game.Workspace:FindFirstChild(playerName):FindFirstChild("Punch")
+        _G.autoPunchanim = true  -- Global control variable for Auto Punch
+
+        while _G.autoPunchanim do
+            if punchTool then
+                if punchTool.Parent ~= game.Workspace:FindFirstChild(playerName) then
+                    punchTool.Parent = game.Workspace:FindFirstChild(playerName) -- Equip the tool
+                end
+
+                -- Fire punches for both hands
+                game.Players.LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                game.Players.LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                wait(0.1) -- Adjust the delay as needed for timing between punches
+            else
+                warn("Punch tool not found")
+                _G.autoPunchanim = false -- Optional: Stop the loop if the tool is not found
+            end
+        end
+
+        -- Firetouchinterest on all players except whitelisted ones
+        while _G.autoPunchanim do
+            for _, targetPlayer in pairs(game.Players:GetPlayers()) do
+                if not table.find(Whitelist.Values, targetPlayer.Name) then -- Check if player is not whitelisted
+                    -- Use firetouchinterest to simulate punches
+                    local targetCharacter = targetPlayer.Character
+                    if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                        -- Simulate touch on both hands using firetouchinterest
+                        local rightHand = player.Character:FindFirstChild("RightHand")
+                        local leftHand = player.Character:FindFirstChild("LeftHand")
+                        if rightHand and leftHand then
+                            firetouchinterest(rightHand, targetCharacter.HumanoidRootPart, true)
+                            firetouchinterest(leftHand, targetCharacter.HumanoidRootPart, true)
+                            wait(0.1) -- Adjust the delay if needed
+                        end
+                    end
+                end
+            end
+            wait(0.1) -- Adjust the wait time to control the loop speed
+        end
+    else
+        -- Stop Auto Kill when the toggle is off
+        _G.autoPunchanim = false
+    end
+end)
+
+-- Handle changes to the Whitelist Dropdown
+Whitelist:OnChanged(function(Value)
+    -- No print, but you can add logic to handle the selected values here if needed
+end)
+
+AutoKillToggle:OnChanged(function()
+    -- Handle changes to the Auto Kill toggle if needed
+end)
