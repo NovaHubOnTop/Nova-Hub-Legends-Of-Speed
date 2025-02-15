@@ -204,3 +204,40 @@ Tabs.AutoFarm:AddButton({
     end
 })
 
+-- Dropdown for selecting the egg
+local Dropdown = Tabs.Eggs:AddDropdown("Select Egg", {
+    Title = "Select Egg",
+    Values = {
+        "Yellow Crystal", "Blue Crystal", "Red Crystal", "Lightning Crystal", 
+        "Inferno Crystal", "Lava Crystal", "Snow Crystal", "Electro Legends Crystal", 
+        "Space Crystal", "Alien Crystal", "Electro Crystal", "Desert Crystal", "Jungle Crystal"
+    },
+    Multi = false,
+    Default = 1,
+})
+
+Dropdown:SetValue("Jungle Crystal")  -- Default to "Jungle Crystal"
+
+Dropdown:OnChanged(function(Value)
+    print("Dropdown changed:", Value)
+end)
+
+-- Toggle for Auto Eggs
+local Toggle = Tabs.Eggs:AddToggle("Auto Eggs", {
+    Title = "Auto Eggs",
+    Default = false
+})
+
+Toggle:OnChanged(function()
+    print("Toggle changed:", Toggle.Value)
+    if Toggle.Value then
+        local selectedEgg = Dropdown.Value
+        local args = {
+            [1] = "openCrystal",
+            [2] = selectedEgg
+        }
+
+        game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("openCrystalRemote"):InvokeServer(unpack(args))
+    end
+end)
+
