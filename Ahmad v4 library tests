@@ -177,13 +177,21 @@ AutoKillToggle:OnChanged(function(state)
             game.Workspace:FindFirstChild(playerName):FindFirstChild("Punch")
         _G.autoPunchanim = true  -- Global control variable for Auto Punch
 
+        -- Equip the "Punch" tool if not already equipped
+        if not punchTool then
+            punchTool = Instance.new("Tool")
+            punchTool.Name = "Punch"
+            punchTool.Parent = player.Backpack
+        end
+
+        -- Start the punch loop
         while _G.autoPunchanim do
             if punchTool then
                 if punchTool.Parent ~= game.Workspace:FindFirstChild(playerName) then
-                    punchTool.Parent = game.Workspace:FindFirstChild(playerName) -- Equip the tool
+                    punchTool.Parent = game.Workspace:FindFirstChild(playerName) -- Equip the tool if not equipped
                 end
 
-                -- Fire punches for both hands
+                -- Fire punches for both hands using muscle event
                 game.Players.LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
                 game.Players.LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
                 wait(0.1) -- Adjust the delay as needed for timing between punches
@@ -197,7 +205,7 @@ AutoKillToggle:OnChanged(function(state)
         while _G.autoPunchanim do
             for _, targetPlayer in pairs(game.Players:GetPlayers()) do
                 if not table.find(Whitelist.Values, targetPlayer.Name) then -- Check if player is not whitelisted
-                    -- Use firetouchinterest to simulate punches
+                    -- Use firetouchinterest to simulate punches on each player's character
                     local targetCharacter = targetPlayer.Character
                     if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
                         -- Simulate touch on both hands using firetouchinterest
