@@ -13,14 +13,14 @@ local Window = NovaHub:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Home = Window:AddTab({ Title = "Home", Icon = "" }),
     AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" }),
     Eggs = Window:AddTab({ Title = "Eggs", Icon = "egg" }),
-    Player = Window:AddTab({ Title = "Player", Icon = "person" })
+    
 }
 
 -- Discord Server Button
-Tabs.Main:AddButton({
+Tabs.Home:AddButton({
     Title = "Discord Server",
     Description = "Copy discord server link",
     Callback = function()
@@ -35,13 +35,13 @@ Tabs.Main:AddButton({
     end
 })
 
-Tabs.Main:AddParagraph({
+Tabs.Home:AddParagraph({
     Title = "Local Player",
     Content = ""
 })
 
 -- WalkSpeed Input
-local WalkSpeedInput = Tabs.Main:AddInput("WalkSpeed", {
+local WalkSpeedInput = Tabs.Home:AddInput("WalkSpeed", {
     Title = "WalkSpeed",
     Default = "16",
     Placeholder = "Enter WalkSpeed",
@@ -52,7 +52,7 @@ local WalkSpeedInput = Tabs.Main:AddInput("WalkSpeed", {
 
 WalkSpeedInput:OnChanged(function() print("WalkSpeed input updated:", WalkSpeedInput.Value) end)
 
-Tabs.Main:AddButton({
+Tabs.Home:AddButton({
     Title = "Apply WalkSpeed",
     Description = "Apply the entered WalkSpeed",
     Callback = function()
@@ -75,7 +75,7 @@ Tabs.Main:AddButton({
 })
 
 -- JumpPower Input
-local JumpPowerInput = Tabs.Main:AddInput("JumpPower", {
+local JumpPowerInput = Tabs.Home:AddInput("JumpPower", {
     Title = "JumpPower",
     Default = "50",
     Placeholder = "Enter JumpPower",
@@ -86,7 +86,7 @@ local JumpPowerInput = Tabs.Main:AddInput("JumpPower", {
 
 JumpPowerInput:OnChanged(function() print("JumpPower input updated:", JumpPowerInput.Value) end)
 
-Tabs.Main:AddButton({
+Tabs.Home:AddButton({
     Title = "Apply JumpPower",
     Description = "Apply the entered JumpPower",
     Callback = function()
@@ -111,7 +111,7 @@ Tabs.Main:AddButton({
 -- AutoFarm Tab
 Tabs.AutoFarm:AddParagraph({
     Title = "Auto Farming",
-    Content = "Automate orb collection and farming actions."
+    Content = ""
 })
 
 local CityDropdown = Tabs.AutoFarm:AddDropdown("Select City", {
@@ -203,20 +203,4 @@ Tabs.AutoFarm:AddButton({
         end
     end
 })
-
--- Auto Hoop Toggle
-Tabs.AutoFarm:AddToggle("Auto Hoop", {Title = "Auto Hoop", Default = false})
-
-Tabs.AutoFarm.Toggle.OnChanged(function(Value)
-    getgenv().AutoHoop = Value
-    spawn(function()
-        while getgenv().AutoHoop do
-            for i, v in pairs(game:GetService("Workspace").Hoops:GetChildren()) do
-                -- Teleport each hoop to the player's character
-                v:SetPrimaryPartCFrame(game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame)
-                wait(0.1)  -- Delay to prevent lag and ensure smooth teleportation
-            end
-        end
-    end)
-end)
 
