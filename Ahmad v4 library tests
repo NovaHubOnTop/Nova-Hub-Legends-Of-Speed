@@ -16,6 +16,8 @@ local Tabs = {
     Home = Window:AddTab({ Title = "Home", Icon = "" }),
     AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" }),
     Eggs = Window:AddTab({ Title = "Eggs", Icon = "egg" }),
+    local RebirthingTab = Window:AddTab({ Title = "Rebirthing", Icon = "" })
+
     
 }
 
@@ -243,6 +245,75 @@ Toggle:OnChanged(function()
             game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("openCrystalRemote"):InvokeServer(unpack(args))
             
             wait(0.1)  -- Wait for 0.1 seconds before repeating
+        end
+    end
+end)
+
+
+
+-- Add the Auto Rebirth toggle
+local AutoRebirthToggle = RebirthingTab:AddToggle("Auto Rebirth", {
+    Title = "Auto Rebirth",
+    Default = false
+})
+
+AutoRebirthToggle:OnChanged(function()
+    if AutoRebirthToggle.Value then
+        -- Continuously send the rebirth event when the toggle is on
+        while AutoRebirthToggle.Value do
+            local args = {
+                [1] = "rebirthRequest"
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthEvent"):FireServer(unpack(args))
+            wait(0.1)  -- Repeat every 0.1 seconds
+        end
+    end
+end)
+
+-- Add a paragraph to display the rebirth amount information
+RebirthingTab:AddParagraph({
+    Title = "Rebirth Amount",
+    Content = "This will automatically rebirth based on the target amount."
+})
+
+-- Create the "Rebirth Target" textbox
+local RebirthTargetInput = RebirthingTab:AddInput("RebirthTarget", {
+    Title = "Rebirth Target",
+    Default = "0",
+    Placeholder = "Enter the target number of rebirths",
+    Numeric = true,  -- Only allows numbers
+    Finished = true,
+    Callback = function(Value) 
+        print("Rebirth target input changed:", Value) 
+    end
+})
+
+RebirthTargetInput:OnChanged(function() 
+    print("Rebirth target input updated:", RebirthTargetInput.Value) 
+end)
+
+-- Add the "Auto Rebirth Until Reach Amount" toggle
+local AutoRebirthUntilToggle = RebirthingTab:AddToggle("Auto Rebirth Until Reach Amount", {
+    Title = "Auto Rebirth Until Reach Amount",
+    Default = false
+})
+
+AutoRebirthUntilToggle:OnChanged(function()
+    if AutoRebirthUntilToggle.Value then
+        local targetRebirths = tonumber(RebirthTargetInput.Value)
+        if targetRebirths and targetRebirths > 0 then
+            local currentRebirths = game.Players.LocalPlayer:WaitForChild("leaderstats"):WaitForChild("Rebirths")  -- Assuming there is a "Rebirths" stat in leaderstats
+
+            -- Continuously rebirth until reaching the target
+            while AutoRebirthUntilToggle.Value and currentRebirths.Value < targetRebirths do
+                local args = {
+                    [1] = "rebirthRequest"
+                }
+                game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthEvent"):FireServer(unpack(args))
+                wait(0.1)  -- Repeat every 0.1 seconds
+            end
+        else
+            print("Please enter a valid target number of rebirths.")
         end
     end
 end)
