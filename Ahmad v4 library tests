@@ -1,237 +1,145 @@
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/NovaHubOnTop/Private/refs/heads/main/Library"))()
+local NovaHub = loadstring(game:HttpGet("https://raw.githubusercontent.com/NovaHubOnTop/Private/refs/heads/main/Library"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
-local Window = Fluent:CreateWindow({
+local Window = NovaHub:CreateWindow({
     Title = "Nova Hub Paid Version" .. Fluent.Version,
     SubTitle = "by Encrypted",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "NovaHub",
-    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when there's no MinimizeKeybind
 })
 
-local Tabs = {
-    Client = Window:AddTab({ Title = "Client", Icon = "" }),
-    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" }),
-    Killing = Window:AddTab({ Title = "Killing", Icon = "settings" })
-}
+Main = Window:AddTab({ Title = "Main", Icon = "scan-face" })
 
-Tabs.Client:AddParagraph({
-        Title = "Local Player",
-        Content = ""
-    })
-
--- Hide Pet Button
-Tabs.Client:AddButton({
-        Title = "Hide Pet",
-        Description = "Hide your pet.",
-        Callback = function()
-            local args = {
-                [1] = "hidePets"
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("showPetsEvent"):FireServer(unpack(args))
-        end
-    })
-
--- Set Size 2 Button
-Tabs.Client:AddButton({
-        Title = "Set Size 2",
-        Description = "Set your size to 2.",
-        Callback = function()
-            local args = {
-                [1] = "changeSize",
-                [2] = "2"
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("changeSpeedSizeRemote"):InvokeServer(unpack(args))
-        end
-    })
-
--- Set Size Nan Button
-Tabs.Client:AddButton({
-        Title = "Set Size Nan",
-        Description = "Set your size to nan.",
-        Callback = function()
-            local args = {
-                [1] = "changeSize",
-                [2] = "nan"
-            }
-            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("changeSpeedSizeRemote"):InvokeServer(unpack(args))
-        end
-    })
-
--- WalkSpeed Slider
-Tabs.Client:AddSlider("WalkSpeed", {
-        Title = "WalkSpeed",
-        Description = "",
-        Default = 500,
-        Min = 1,
-        Max = 500,
-        Rounding = 1,
-        Callback = function(Value)
-            print("WalkSpeed was changed:", Value)
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
-        end
-    })
-
--- JumpPower Slider
-Tabs.Client:AddSlider("JumpPower", {
-        Title = "JumpPower",
-        Description = "",
-        Default = 36,
-        Min = 0,
-        Max = 1000,
-        Rounding = 1,
-        Callback = function(Value)
-            print("JumpPower was changed:", Value)
-            game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
-        end
-    })
-
--- Size Slider
-Tabs.Client:AddSlider("Size", {
-        Title = "Size",
-        Description = "",
-        Default = 2,
-        Min = 1,
-        Max = 100,
-        Rounding = 1,
-        Callback = function(Value)
-            print("Size was changed:", Value)
-            game.Players.LocalPlayer.Character.HumanoidRootPart.Size = Vector3.new(Value, Value, Value)
-        end
-    })
-
-Tabs.AutoFarm:AddParagraph({
-        Title = "Reps",
-        Content = ""
-    })
-
--- Auto Farm Toggle
-local AutoFarmToggle = Tabs.AutoFarm:AddToggle("Auto Farm", {Title = "Turn this on before using the tools toggles", Default = false })
-
-AutoFarmToggle:OnChanged(function(Value)
-    if Value then
-        while AutoFarmToggle.Value do
-            local args = { [1] = "rep" }
-            -- Fire the muscle event on the server
-            game:GetService("Players").LocalPlayer:WaitForChild("muscleEvent"):FireServer(unpack(args))
-            wait(0.1)  -- Adjust the wait time for frequency of the event firing
-        end
-    end
-end)
-
-Tabs.AutoFarm:AddParagraph({
-        Title = "Tools",
-        Content = ""
-    })
-
--- Initialize the Whitelist Dropdown first, without setting values yet
-local Whitelist = Tabs.Killing:AddDropdown("Whitelist", {
-    Title = "Whitelist",
-    Description = "Select players to exclude from Auto Kill.",
-    Values = {}, -- Empty initial values, will be updated later
-    Multi = true,
-    Default = {} -- No players selected initially
-})
-
--- Function to update the Whitelist dropdown with all player names in the server
-local function updateWhitelistDropdown()
-    local playerNames = {}
-    for _, player in pairs(game.Players:GetPlayers()) do
-        table.insert(playerNames, player.Name)
-    end
-
-    -- Update the dropdown values with all player names
-    if Whitelist then
-        Whitelist:SetValues(playerNames)
-    end
-end
-
--- Update the Whitelist dropdown with players when the script starts
-updateWhitelistDropdown()
-
--- Monitor players joining and leaving to update the dropdown dynamically
-game.Players.PlayerAdded:Connect(function()
-    updateWhitelistDropdown()
-end)
-
-game.Players.PlayerRemoving:Connect(function()
-    updateWhitelistDropdown()
-end)
-
--- Create Auto Kill Toggle
-local AutoKillToggle = Tabs.Killing:AddToggle("AutoKill", {
-    Title = "Auto Kill",
-    Default = false
-})
-
-AutoKillToggle:OnChanged(function(state)
-    -- Check if Auto Kill is enabled or disabled
-    if state then
-        local player = game.Players.LocalPlayer
-        local playerName = player.Name
-        local punchTool =
-            player.Backpack:FindFirstChild("Punch") or
-            game.Workspace:FindFirstChild(playerName):FindFirstChild("Punch")
-        _G.autoPunchanim = true  -- Global control variable for Auto Punch
-
-        -- Equip the "Punch" tool if not already equipped
-        if not punchTool then
-            punchTool = Instance.new("Tool")
-            punchTool.Name = "Punch"
-            punchTool.Parent = player.Backpack
-        end
-
-        -- Start the punch loop
-        while _G.autoPunchanim do
-            if punchTool then
-                if punchTool.Parent ~= game.Workspace:FindFirstChild(playerName) then
-                    punchTool.Parent = game.Workspace:FindFirstChild(playerName) -- Equip the tool if not equipped
-                end
-
-                -- Fire punches for both hands using muscle event
-                game.Players.LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-                game.Players.LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-                wait(0.1) -- Adjust the delay as needed for timing between punches
-            else
-                warn("Punch tool not found")
-                _G.autoPunchanim = false -- Optional: Stop the loop if the tool is not found
-            end
-        end
-
-        -- Firetouchinterest on all players except whitelisted ones
-        while _G.autoPunchanim do
-            for _, targetPlayer in pairs(game.Players:GetPlayers()) do
-                if not table.find(Whitelist.Values, targetPlayer.Name) then -- Check if player is not whitelisted
-                    -- Use firetouchinterest to simulate punches on each player's character
-                    local targetCharacter = targetPlayer.Character
-                    if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-                        -- Simulate touch on both hands using firetouchinterest
-                        local rightHand = player.Character:FindFirstChild("RightHand")
-                        local leftHand = player.Character:FindFirstChild("LeftHand")
-                        if rightHand and leftHand then
-                            firetouchinterest(rightHand, targetCharacter.HumanoidRootPart, true)
-                            firetouchinterest(leftHand, targetCharacter.HumanoidRootPart, true)
-                            wait(0.1) -- Adjust the delay if needed
-                        end
+Tabs.Main:AddButton({
+    Title = "Discord Server",
+    Description = "Copy discord server link",
+    Callback = function()
+        -- Copy the Discord server link to the clipboard
+        setclipboard("https://discord.gg/ztGskBVU")
+        
+        -- Display a dialog to notify the user
+        Window:Dialog({
+            Title = "Discord Link Copied",
+            Content = "The Discord server link has been copied to your clipboard.",
+            Buttons = {
+                {
+                    Title = "OK",
+                    Callback = function()
+                        print("User acknowledged the dialog.")
                     end
-                end
-            end
-            wait(0.1) -- Adjust the wait time to control the loop speed
-        end
-    else
-        -- Stop Auto Kill when the toggle is off
-        _G.autoPunchanim = false
+                }
+            }
+        })
     end
+})
+
+Tabs.Main:AddParagraph({
+    Title = "Local Player",
+    Content = ""
+})
+
+local WalkSpeedInput = Tabs.Main:AddInput("WalkSpeed", {
+    Title = "WalkSpeed",
+    Default = "16", -- Default walk speed value
+    Placeholder = "Enter WalkSpeed",
+    Numeric = true, -- Only allows numbers
+    Finished = true, -- Only calls callback when you press enter
+    Callback = function(Value)
+        print("WalkSpeed input changed:", Value)
+    end
+})
+
+WalkSpeedInput:OnChanged(function()
+    print("WalkSpeed input updated:", WalkSpeedInput.Value)
 end)
 
--- Handle changes to the Whitelist Dropdown
-Whitelist:OnChanged(function(Value)
-    -- You can add logic to handle the selected values if needed
+Tabs.Main:AddButton({
+    Title = "Apply WalkSpeed",
+    Description = "Apply the entered WalkSpeed",
+    Callback = function()
+        local walkSpeedValue = tonumber(WalkSpeedInput.Value)
+        if walkSpeedValue then
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = walkSpeedValue
+            Window:Dialog({
+                Title = "WalkSpeed Applied",
+                Content = "WalkSpeed has been set to " .. walkSpeedValue,
+                Buttons = {
+                    {
+                        Title = "OK",
+                        Callback = function()
+                            print("WalkSpeed applied.")
+                        end
+                    }
+                }
+            })
+        else
+            Window:Dialog({
+                Title = "Invalid Input",
+                Content = "Please enter a valid number for WalkSpeed.",
+                Buttons = {
+                    {
+                        Title = "OK",
+                        Callback = function()
+                            print("Invalid WalkSpeed input.")
+                        end
+                    }
+                }
+            })
+        end
+    end
+})
+
+local JumpPowerInput = Tabs.Main:AddInput("JumpPower", {
+    Title = "JumpPower",
+    Default = "50", -- Default jump power value
+    Placeholder = "Enter JumpPower",
+    Numeric = true, -- Only allows numbers
+    Finished = true, -- Only calls callback when you press enter
+    Callback = function(Value)
+        print("JumpPower input changed:", Value)
+    end
+})
+
+JumpPowerInput:OnChanged(function()
+    print("JumpPower input updated:", JumpPowerInput.Value)
 end)
 
-AutoKillToggle:OnChanged(function()
-    -- Handle changes to the Auto Kill toggle if needed
-end)
+Tabs.Main:AddButton({
+    Title = "Apply JumpPower",
+    Description = "Apply the entered JumpPower",
+    Callback = function()
+        local jumpPowerValue = tonumber(JumpPowerInput.Value)
+        if jumpPowerValue then
+            game.Players.LocalPlayer.Character.Humanoid.JumpPower = jumpPowerValue
+            Window:Dialog({
+                Title = "JumpPower Applied",
+                Content = "JumpPower has been set to " .. jumpPowerValue,
+                Buttons = {
+                    {
+                        Title = "OK",
+                        Callback = function()
+                            print("JumpPower applied.")
+                        end
+                    }
+                }
+            })
+        else
+            Window:Dialog({
+                Title = "Invalid Input",
+                Content = "Please enter a valid number for JumpPower.",
+                Buttons = {
+                    {
+                        Title = "OK",
+                        Callback = function()
+                            print("Invalid JumpPower input.")
+                        end
+                    }
+                }
+            })
+        end
+    end
+})
