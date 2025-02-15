@@ -127,6 +127,15 @@ Tabs.AutoFarm:AddParagraph({
         Content = ""
     })
 
+-- Initialize the Whitelist Dropdown first, without setting values yet
+local Whitelist = Tabs.Killing:AddDropdown("Whitelist", {
+    Title = "Whitelist",
+    Description = "Select players to exclude from Auto Kill.",
+    Values = {}, -- Empty initial values, will be updated later
+    Multi = true,
+    Default = {} -- No players selected initially
+})
+
 -- Function to update the Whitelist dropdown with all player names in the server
 local function updateWhitelistDropdown()
     local playerNames = {}
@@ -135,17 +144,10 @@ local function updateWhitelistDropdown()
     end
 
     -- Update the dropdown values with all player names
-    Whitelist:SetValues(playerNames)
+    if Whitelist then
+        Whitelist:SetValues(playerNames)
+    end
 end
-
--- Initialize the Whitelist Dropdown
-local Whitelist = Tabs.Killing:AddDropdown("Whitelist", {
-    Title = "Whitelist",
-    Description = "Select players to exclude from Auto Kill.",
-    Values = {}, -- Initial empty values, will be updated
-    Multi = true,
-    Default = {} -- No players selected initially
-})
 
 -- Update the Whitelist dropdown with players when the script starts
 updateWhitelistDropdown()
@@ -219,7 +221,7 @@ end)
 
 -- Handle changes to the Whitelist Dropdown
 Whitelist:OnChanged(function(Value)
-    -- No print, but you can add logic to handle the selected values here if needed
+    -- You can add logic to handle the selected values if needed
 end)
 
 AutoKillToggle:OnChanged(function()
