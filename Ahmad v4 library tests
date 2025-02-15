@@ -16,9 +16,7 @@ local Tabs = {
     Home = Window:AddTab({ Title = "Home", Icon = "" }),
     AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" }),
     Eggs = Window:AddTab({ Title = "Eggs", Icon = "egg" }),
-    local RebirthingTab = Window:AddTab({ Title = "Rebirthing", Icon = "" })
-
-    
+    Rebirthing = Window:AddTab({ Title = "Rebirthing", Icon = "" })  -- Fixed this line
 }
 
 -- Discord Server Button
@@ -249,10 +247,8 @@ Toggle:OnChanged(function()
     end
 end)
 
-
-
 -- Add the Auto Rebirth toggle
-local AutoRebirthToggle = RebirthingTab:AddToggle("Auto Rebirth", {
+local AutoRebirthToggle = Tabs.Rebirthing:AddToggle("Auto Rebirth", {
     Title = "Auto Rebirth",
     Default = false
 })
@@ -271,13 +267,13 @@ AutoRebirthToggle:OnChanged(function()
 end)
 
 -- Add a paragraph to display the rebirth amount information
-RebirthingTab:AddParagraph({
+Tabs.Rebirthing:AddParagraph({
     Title = "Rebirth Amount",
     Content = "This will automatically rebirth based on the target amount."
 })
 
 -- Create the "Rebirth Target" textbox
-local RebirthTargetInput = RebirthingTab:AddInput("RebirthTarget", {
+local RebirthTargetInput = Tabs.Rebirthing:AddInput("RebirthTarget", {
     Title = "Rebirth Target",
     Default = "0",
     Placeholder = "Enter the target number of rebirths",
@@ -293,7 +289,7 @@ RebirthTargetInput:OnChanged(function()
 end)
 
 -- Add the "Auto Rebirth Until Reach Amount" toggle
-local AutoRebirthUntilToggle = RebirthingTab:AddToggle("Auto Rebirth Until Reach Amount", {
+local AutoRebirthUntilToggle = Tabs.Rebirthing:AddToggle("Auto Rebirth Until Reach Amount", {
     Title = "Auto Rebirth Until Reach Amount",
     Default = false
 })
