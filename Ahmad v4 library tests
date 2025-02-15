@@ -7,27 +7,35 @@ local Window = NovaHub:CreateWindow({
     SubTitle = "by Encrypted",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
     Theme = "NovaHub",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when there's no MinimizeKeybind
 })
 
 local Tabs = {
     Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" })
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" }),
+    Eggs = Window:AddTab({ Title = "Eggs", Icon = "egg" })
 }
 
--- Main Tab
 Tabs.Main:AddButton({
     Title = "Discord Server",
-    Description = "Copy Discord server link",
+    Description = "Copy discord server link",
     Callback = function()
+        -- Copy the Discord server link to the clipboard
         setclipboard("https://discord.gg/ztGskBVU")
+        
+        -- Display a dialog to notify the user
         Window:Dialog({
             Title = "Discord Link Copied",
             Content = "The Discord server link has been copied to your clipboard.",
             Buttons = {
-                { Title = "OK", Callback = function() print("User acknowledged the dialog.") end }
+                {
+                    Title = "OK",
+                    Callback = function()
+                        print("User acknowledged the dialog.")
+                    end
+                }
             }
         })
     end
@@ -38,14 +46,15 @@ Tabs.Main:AddParagraph({
     Content = ""
 })
 
--- WalkSpeed Input
 local WalkSpeedInput = Tabs.Main:AddInput("WalkSpeed", {
     Title = "WalkSpeed",
-    Default = "16",
+    Default = "16", -- Default walk speed value
     Placeholder = "Enter WalkSpeed",
-    Numeric = true,
-    Finished = true,
-    Callback = function(Value) print("WalkSpeed input changed:", Value) end
+    Numeric = true, -- Only allows numbers
+    Finished = true, -- Only calls callback when you press enter
+    Callback = function(Value)
+        print("WalkSpeed input changed:", Value)
+    end
 })
 
 WalkSpeedInput:OnChanged(function()
@@ -63,7 +72,12 @@ Tabs.Main:AddButton({
                 Title = "WalkSpeed Applied",
                 Content = "WalkSpeed has been set to " .. walkSpeedValue,
                 Buttons = {
-                    { Title = "OK", Callback = function() print("WalkSpeed applied.") end }
+                    {
+                        Title = "OK",
+                        Callback = function()
+                            print("WalkSpeed applied.")
+                        end
+                    }
                 }
             })
         else
@@ -71,21 +85,27 @@ Tabs.Main:AddButton({
                 Title = "Invalid Input",
                 Content = "Please enter a valid number for WalkSpeed.",
                 Buttons = {
-                    { Title = "OK", Callback = function() print("Invalid WalkSpeed input.") end }
+                    {
+                        Title = "OK",
+                        Callback = function()
+                            print("Invalid WalkSpeed input.")
+                        end
+                    }
                 }
             })
         end
     end
 })
 
--- JumpPower Input
 local JumpPowerInput = Tabs.Main:AddInput("JumpPower", {
     Title = "JumpPower",
-    Default = "50",
+    Default = "50", -- Default jump power value
     Placeholder = "Enter JumpPower",
-    Numeric = true,
-    Finished = true,
-    Callback = function(Value) print("JumpPower input changed:", Value) end
+    Numeric = true, -- Only allows numbers
+    Finished = true, -- Only calls callback when you press enter
+    Callback = function(Value)
+        print("JumpPower input changed:", Value)
+    end
 })
 
 JumpPowerInput:OnChanged(function()
@@ -103,7 +123,12 @@ Tabs.Main:AddButton({
                 Title = "JumpPower Applied",
                 Content = "JumpPower has been set to " .. jumpPowerValue,
                 Buttons = {
-                    { Title = "OK", Callback = function() print("JumpPower applied.") end }
+                    {
+                        Title = "OK",
+                        Callback = function()
+                            print("JumpPower applied.")
+                        end
+                    }
                 }
             })
         else
@@ -111,80 +136,192 @@ Tabs.Main:AddButton({
                 Title = "Invalid Input",
                 Content = "Please enter a valid number for JumpPower.",
                 Buttons = {
-                    { Title = "OK", Callback = function() print("Invalid JumpPower input.") end }
+                    {
+                        Title = "OK",
+                        Callback = function()
+                            print("Invalid JumpPower input.")
+                        end
+                    }
                 }
             })
         end
     end
 })
 
--- Auto Farm Tab
 Tabs.AutoFarm:AddParagraph({
     Title = "Auto Farming",
     Content = "Automate orb collection and farming actions."
 })
 
-_G.SelectCity = "City"
-_G.SelectOrb = "Red Orb"
-_G.FarmingMode = "Normal"
-_G.AutoOrbs = false
-
--- City Selection
+-- Dropdown for selecting city
 local CityDropdown = Tabs.AutoFarm:AddDropdown("Select City", {
     Title = "Select City",
     Values = {"City", "Snow City", "Magma City", "Jungle City"},
     Multi = false,
-    Default = "City",
-    Callback = function(Value) _G.SelectCity = Value end
+    Default = 1,
 })
 
--- Orb Selection
+CityDropdown:SetValue("City")
+
+CityDropdown:OnChanged(function(Value)
+    print("City selected:", Value)
+end)
+
+-- Dropdown for selecting orb
 local OrbDropdown = Tabs.AutoFarm:AddDropdown("Select Orb", {
     Title = "Select Orb",
     Values = {"Red Orb", "Orange Orb", "Blue Orb", "Yellow Orb", "Gems", "Ethereal Orb"},
     Multi = false,
-    Default = "Red Orb",
-    Callback = function(Value) _G.SelectOrb = Value end
+    Default = 1,
 })
 
--- Farming Mode Selection
+OrbDropdown:SetValue("Red Orb")
+
+OrbDropdown:OnChanged(function(Value)
+    print("Orb selected:", Value)
+end)
+
+-- Dropdown for selecting farming mode
 local FarmingModeDropdown = Tabs.AutoFarm:AddDropdown("Select Farming Mode", {
     Title = "Select Farming Mode",
     Values = {"Slow", "Normal", "Fast", "Super Fast"},
     Multi = false,
-    Default = "Normal",
-    Callback = function(Value) _G.FarmingMode = Value end
+    Default = 1,
 })
 
--- Farming Mode Mapping
-local FarmingCounts = {
-    ["Slow"] = 50,
-    ["Normal"] = 50,
-    ["Fast"] = 100,
-    ["Super Fast"] = 200
-}
+FarmingModeDropdown:SetValue("Normal")
 
--- Start Farming Toggle
-local Toggle = Tabs.AutoFarm:AddToggle("Start Farming", { Title = "Start Farming", Default = false })
+FarmingModeDropdown:OnChanged(function(Value)
+    print("Farming Mode selected:", Value)
+end)
+
+-- Toggle for starting the farming
+local Toggle = Tabs.AutoFarm:AddToggle("Start Farming", {Title = "Start Farming", Default = false})
 
 Toggle:OnChanged(function()
-    _G.AutoOrbs = Toggle.Value
+    local city = CityDropdown.Value
+    local orb = OrbDropdown.Value
+    local farmingMode = FarmingModeDropdown.Value
 
-    if _G.AutoOrbs then
+    if Toggle.Value then
+        -- Farming logic based on selected farming mode
+        local loopCount = 50
+        if farmingMode == "Normal" then
+            loopCount = 50
+        elseif farmingMode == "Fast" then
+            loopCount = 100
+        elseif farmingMode == "Super Fast" then
+            loopCount = 200
+        end
+        
+        while Toggle.Value do
+            local args = {
+                [1] = "collectOrb",
+                [2] = orb,
+                [3] = city
+            }
+
+            for i = 1, loopCount do
+                game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("orbEvent"):FireServer(unpack(args))
+            end
+            wait(0.3)
+        end
+    end
+end)
+
+-- Anti Lag Button
+Tabs.AutoFarm:AddButton({
+    Title = "Anti Lag",
+    Description = "Improves FPS by disabling certain features.",
+    Callback = function()
+        local decalsyeeted = true
+        local g = game
+        local w = g.Workspace
+        local l = g.Lighting
+        local t = w.Terrain
+        t.WaterWaveSize = 0
+        t.WaterWaveSpeed = 0
+        t.WaterReflectance = 0
+        t.WaterTransparency = 0
+        l.GlobalShadows = false
+        l.FogEnd = 9e9
+        l.Brightness = 0
+        settings().Rendering.QualityLevel = "Level01"
+        
+        for i, v in pairs(g:GetDescendants()) do
+            if v:IsA("Part") or v:IsA("Union") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+                v.Material = "Plastic"
+                v.Reflectance = 0
+            elseif v:IsA("Decal") or v:IsA("Texture") and decalsyeeted then
+                v.Transparency = 1
+            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Lifetime = NumberRange.new(0)
+            elseif v:IsA("Explosion") then
+                v.BlastPressure = 1
+                v.BlastRadius = 1
+            elseif v:IsA("Fire") or v:IsA("SpotLight") or v:IsA("Smoke") then
+                v.Enabled = false
+            elseif v:IsA("MeshPart") then
+                v.Material = "Plastic"
+                v.Reflectance = 0
+                v.TextureID = 10385902758728957
+            end
+        end
+        
+        for i, e in pairs(l:GetChildren()) do
+            if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("ColorCorrectionEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+                e.Enabled = false
+            end
+        end
+    end
+})
+
+-- Auto Hoop Toggle
+Tabs.AutoFarm:AddToggle("Auto Hoop", {Title = "Auto Hoop", Default = false})
+
+Tabs.AutoFarm.Toggle.OnChanged(function(Value)
+    getgenv().AutoHoop = Value
+    spawn(function()
+        while getgenv().AutoHoop == true do
+            for i, v in pairs(game:GetService("Workspace").Hoops:GetChildren()) do
+                firetouchinterest(v, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 0)
+                wait()
+                firetouchinterest(v, game:GetService("Players").LocalPlayer.Character.HumanoidRootPart, 1)
+            end
+        end
+    end)
+end)
+
+-- Eggs Tab
+local EggDropdown = Tabs.Eggs:AddDropdown("Chose Egg", {
+    Title = "Chose Egg",
+    Values = {"Yellow Crystal", "Blue Crystal", "Red Crystal", "Lightning Crystal", "Inferno Crystal", "Lava Crystal", "Snow Crystal", 
+              "Electro Legends Crystal", "Space Crystal", "Alien Crystal", "Electro Crystal", "Desert Crystal", "Jungle Crystal"},
+    Multi = false,
+    Default = 1,
+})
+
+EggDropdown:SetValue("Yellow Crystal")
+
+-- Auto Egg Toggle
+local AutoEggToggle = Tabs.Eggs:AddToggle("Auto Egg", {Title = "Auto Egg", Default = false})
+
+AutoEggToggle:OnChanged(function(Value)
+    _G.autoHatch = Value
+    _G.selectEgg = EggDropdown.Value
+
+    if _G.autoHatch then
         spawn(function()
-            while _G.AutoOrbs do
+            while _G.autoHatch do
                 local args = {
-                    [1] = "collectOrb",
-                    [2] = _G.SelectOrb,
-                    [3] = _G.SelectCity
+                    [1] = "openCrystal",
+                    [2] = _G.selectEgg
                 }
-
-                for i = 1, FarmingCounts[_G.FarmingMode] or 50 do
-                    game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("orbEvent"):FireServer(unpack(args))
-                end
-
-                wait(0.25)
+                game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("openCrystalRemote"):InvokeServer(unpack(args))
+                wait(0.01)
             end
         end)
     end
 end)
+
+
