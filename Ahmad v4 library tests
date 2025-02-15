@@ -16,7 +16,9 @@ local Tabs = {
     Home = Window:AddTab({ Title = "Home", Icon = "" }),
     AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" }),
     Eggs = Window:AddTab({ Title = "Eggs", Icon = "egg" }),
-    Rebirthing = Window:AddTab({ Title = "Rebirthing", Icon = "" })  -- Fixed this line
+    Rebirthing = Window:AddTab({ Title = "Rebirthing", Icon = "" }),
+    Teleports = Window:AddTab({ Title = "Teleports", Icon = "home" }),
+    AutoRacing = Window:AddTab({ Title = "Auto Racing", Icon = "car" })
 }
 
 -- Discord Server Button
@@ -25,13 +27,6 @@ Tabs.Home:AddButton({
     Description = "Copy discord server link",
     Callback = function()
         setclipboard("https://discord.gg/ztGskBVU")
-        Window:Dialog({
-            Title = "Discord Link Copied",
-            Content = "The Discord server link has been copied to your clipboard.",
-            Buttons = {
-                { Title = "OK", Callback = function() print("User acknowledged the dialog.") end }
-            }
-        })
     end
 })
 
@@ -47,10 +42,10 @@ local WalkSpeedInput = Tabs.Home:AddInput("WalkSpeed", {
     Placeholder = "Enter WalkSpeed",
     Numeric = true,
     Finished = true,
-    Callback = function(Value) print("WalkSpeed input changed:", Value) end
+    Callback = function(Value) end
 })
 
-WalkSpeedInput:OnChanged(function() print("WalkSpeed input updated:", WalkSpeedInput.Value) end)
+WalkSpeedInput:OnChanged(function() end)
 
 Tabs.Home:AddButton({
     Title = "Apply WalkSpeed",
@@ -59,17 +54,6 @@ Tabs.Home:AddButton({
         local walkSpeedValue = tonumber(WalkSpeedInput.Value)
         if walkSpeedValue then
             game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = walkSpeedValue
-            Window:Dialog({
-                Title = "WalkSpeed Applied",
-                Content = "WalkSpeed has been set to " .. walkSpeedValue,
-                Buttons = { { Title = "OK", Callback = function() print("WalkSpeed applied.") end } }
-            })
-        else
-            Window:Dialog({
-                Title = "Invalid Input",
-                Content = "Please enter a valid number for WalkSpeed.",
-                Buttons = { { Title = "OK", Callback = function() print("Invalid WalkSpeed input.") end } }
-            })
         end
     end
 })
@@ -81,10 +65,10 @@ local JumpPowerInput = Tabs.Home:AddInput("JumpPower", {
     Placeholder = "Enter JumpPower",
     Numeric = true,
     Finished = true,
-    Callback = function(Value) print("JumpPower input changed:", Value) end
+    Callback = function(Value) end
 })
 
-JumpPowerInput:OnChanged(function() print("JumpPower input updated:", JumpPowerInput.Value) end)
+JumpPowerInput:OnChanged(function() end)
 
 Tabs.Home:AddButton({
     Title = "Apply JumpPower",
@@ -93,17 +77,6 @@ Tabs.Home:AddButton({
         local jumpPowerValue = tonumber(JumpPowerInput.Value)
         if jumpPowerValue then
             game.Players.LocalPlayer.Character.Humanoid.JumpPower = jumpPowerValue
-            Window:Dialog({
-                Title = "JumpPower Applied",
-                Content = "JumpPower has been set to " .. jumpPowerValue,
-                Buttons = { { Title = "OK", Callback = function() print("JumpPower applied.") end } }
-            })
-        else
-            Window:Dialog({
-                Title = "Invalid Input",
-                Content = "Please enter a valid number for JumpPower.",
-                Buttons = { { Title = "OK", Callback = function() print("Invalid JumpPower input.") end } }
-            })
         end
     end
 })
@@ -204,6 +177,46 @@ Tabs.AutoFarm:AddButton({
     end
 })
 
+-- Anti Kick Toggle
+local AntiKickToggle = Tabs.AutoFarm:AddToggle("Anti Kick", {Title = "Anti Kick", Default = false})
+
+AntiKickToggle:OnChanged(function()
+    if AntiKickToggle.Value then
+        -- Get the VirtualUser service
+        local VirtualUser = game:GetService("VirtualUser")
+
+        -- Prevent the player from being kicked due to idling
+        game:GetService("Players").LocalPlayer.Idled:Connect(function()
+            VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+            wait(1)
+            VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        end)
+    end
+end)
+
+-- Auto Hoop Toggle
+local AutoHoopToggle = Tabs.AutoFarm:AddToggle("Auto Hoop", {Title = "Auto Hoop", Default = false})
+
+AutoHoopToggle:OnChanged(function()
+    if AutoHoopToggle.Value then
+        while AutoHoopToggle.Value do
+            -- Find all parts named "hoop" or "Hoop" in the workspace
+            for _, part in pairs(workspace:GetDescendants()) do
+                if part:IsA("BasePart") and (part.Name:lower() == "hoop") then
+                    -- Teleport the part to the middle of the player's character
+                    local character = game.Players.LocalPlayer.Character
+                    if character and character:FindFirstChild("HumanoidRootPart") then
+                        part.CFrame = character.HumanoidRootPart.CFrame
+                    end
+                end
+            end
+            wait(0.1)
+        end
+    end
+end)
+
+
+
 -- Dropdown for selecting the egg
 local Dropdown = Tabs.Eggs:AddDropdown("Select Egg", {
     Title = "Select Egg",
@@ -219,7 +232,6 @@ local Dropdown = Tabs.Eggs:AddDropdown("Select Egg", {
 Dropdown:SetValue("Jungle Crystal")  -- Default to "Jungle Crystal"
 
 Dropdown:OnChanged(function(Value)
-    print("Dropdown changed:", Value)
 end)
 
 -- Toggle for Auto Eggs
@@ -229,8 +241,6 @@ local Toggle = Tabs.Eggs:AddToggle("Auto Eggs", {
 })
 
 Toggle:OnChanged(function()
-    print("Toggle changed:", Toggle.Value)
-    
     if Toggle.Value then
         -- Continuously open the selected egg every 0.1 seconds
         while Toggle.Value do
@@ -247,69 +257,82 @@ Toggle:OnChanged(function()
     end
 end)
 
--- Add the Auto Rebirth toggle
-local AutoRebirthToggle = Tabs.Rebirthing:AddToggle("Auto Rebirth", {
-    Title = "Auto Rebirth",
-    Default = false
+-- Teleports Tab
+TeleportsTab:AddButton({
+    Title = "City",
+    Description = "Teleport to City",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-9684.84473, 60.6541595, 3093.29663)
+    end
 })
 
-AutoRebirthToggle:OnChanged(function()
-    if AutoRebirthToggle.Value then
-        -- Continuously send the rebirth event when the toggle is on
-        while AutoRebirthToggle.Value do
+TeleportsTab:AddButton({
+    Title = "Snow City",
+    Description = "Teleport to Snow City",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-9673.79102, 60.6541595, 3788.24927)
+    end
+})
+
+TeleportsTab:AddButton({
+    Title = "Magma City",
+    Description = "Teleport to Magma City",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-11053.1162, 218.589584, 4904.35938)
+    end
+})
+
+TeleportsTab:AddButton({
+    Title = "Legends Highway",
+    Description = "Teleport to Legends Highway",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-13097.0186, 218.589584, 5913.35889)
+    end
+})
+
+TeleportsTab:AddButton({
+    Title = "Space",
+    Description = "Teleport to Space",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-331.764069, 5.45415115, 585.201721)
+    end
+})
+
+TeleportsTab:AddButton({
+    Title = "Desert",
+    Description = "Teleport to Desert",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-9515.24805, 57.1541519, 1607.96765)
+    end
+})
+
+-- Auto Racing Tab
+local FillToggle = Tabs.AutoRacing:AddToggle("Auto Fill", {Title = "Auto Fill", Default = false})
+local FinishToggle = Tabs.AutoRacing:AddToggle("Auto Finish Race", {Title = "Auto Finish Race", Default = false})
+
+-- Auto Fill
+FillToggle:OnChanged(function()
+    if FillToggle.Value then
+        while FillToggle.Value do
             local args = {
-                [1] = "rebirthRequest"
+                [1] = "joinRace"
             }
-            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthEvent"):FireServer(unpack(args))
-            wait(0.1)  -- Repeat every 0.1 seconds
+            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("raceEvent"):FireServer(unpack(args))
+            wait(0.0001)
         end
     end
 end)
 
--- Add a paragraph to display the rebirth amount information
-Tabs.Rebirthing:AddParagraph({
-    Title = "Rebirth Amount",
-    Content = "This will automatically rebirth based on the target amount."
-})
-
--- Create the "Rebirth Target" textbox
-local RebirthTargetInput = Tabs.Rebirthing:AddInput("RebirthTarget", {
-    Title = "Rebirth Target",
-    Default = "0",
-    Placeholder = "Enter the target number of rebirths",
-    Numeric = true,  -- Only allows numbers
-    Finished = true,
-    Callback = function(Value) 
-        print("Rebirth target input changed:", Value) 
-    end
-})
-
-RebirthTargetInput:OnChanged(function() 
-    print("Rebirth target input updated:", RebirthTargetInput.Value) 
-end)
-
--- Add the "Auto Rebirth Until Reach Amount" toggle
-local AutoRebirthUntilToggle = Tabs.Rebirthing:AddToggle("Auto Rebirth Until Reach Amount", {
-    Title = "Auto Rebirth Until Reach Amount",
-    Default = false
-})
-
-AutoRebirthUntilToggle:OnChanged(function()
-    if AutoRebirthUntilToggle.Value then
-        local targetRebirths = tonumber(RebirthTargetInput.Value)
-        if targetRebirths and targetRebirths > 0 then
-            local currentRebirths = game.Players.LocalPlayer:WaitForChild("leaderstats"):WaitForChild("Rebirths")  -- Assuming there is a "Rebirths" stat in leaderstats
-
-            -- Continuously rebirth until reaching the target
-            while AutoRebirthUntilToggle.Value and currentRebirths.Value < targetRebirths do
-                local args = {
-                    [1] = "rebirthRequest"
-                }
-                game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthEvent"):FireServer(unpack(args))
-                wait(0.1)  -- Repeat every 0.1 seconds
-            end
-        else
-            print("Please enter a valid target number of rebirths.")
+-- Auto Finish Race
+FinishToggle:OnChanged(function()
+    if FinishToggle.Value then
+        while FinishToggle.Value do
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(1686.07495, 36.3147125, -5946.63428, -0.984812617, 0, 0.173621148, 0, 1, 0, -0.173621148, 0, -0.984812617)
+            wait(0.1)
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(48.3109131, 36.3147125, -8680.45312, -1, 0, 0, 0, 1, 0, 0, 0, -1)
+            wait(0.1)
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(1001.33118, 36.3147125, -10986.2178, -0.996191859, 0, -0.0871884301, 0, 1, 0, 0.0871884301, 0, -0.996191859)
+            wait(0.1)
         end
     end
 end)
