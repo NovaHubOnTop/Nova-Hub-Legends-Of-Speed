@@ -14,6 +14,179 @@ local Window = Fluent:CreateWindow({
 
 --Fluent provides Lucide Icons https://lucide.dev/icons/ for the tabs, icons are optional
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Client = Window:AddTab({ Title = "Client", Icon = "" }),
+    AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "settings" })
 }
+
+Tabs.Client:AddParagraph({
+        Title = "Local Player",
+        Content = ""
+    })
+
+-- Hide Pet Button
+Tabs.Client:AddButton({
+        Title = "Hide Pet",
+        Description = "Hide your pet.",
+        Callback = function()
+            local args = {
+                [1] = "hidePets"
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("showPetsEvent"):FireServer(unpack(args))
+        end
+    })
+
+-- Set Size 2 Button
+Tabs.Client:AddButton({
+        Title = "Set Size 2",
+        Description = "Set your size to 2.",
+        Callback = function()
+            local args = {
+                [1] = "changeSize",
+                [2] = "2"
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("changeSpeedSizeRemote"):InvokeServer(unpack(args))
+        end
+    })
+
+-- Set Size Nan Button
+Tabs.Client:AddButton({
+        Title = "Set Size Nan",
+        Description = "Set your size to nan.",
+        Callback = function()
+            local args = {
+                [1] = "changeSize",
+                [2] = "nan"
+            }
+            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("changeSpeedSizeRemote"):InvokeServer(unpack(args))
+        end
+    })
+
+-- WalkSpeed Slider
+Tabs.Client:AddSlider("WalkSpeed", {
+        Title = "WalkSpeed",
+        Description = "",
+        Default = 500,
+        Min = 1,
+        Max = 500,
+        Rounding = 1,
+        Callback = function(Value)
+            print("WalkSpeed was changed:", Value)
+            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+        end
+    })
+
+-- JumpPower Slider
+Tabs.Client:AddSlider("JumpPower", {
+        Title = "JumpPower",
+        Description = "",
+        Default = 36,
+        Min = 0,
+        Max = 1000,
+        Rounding = 1,
+        Callback = function(Value)
+            print("JumpPower was changed:", Value)
+            game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+        end
+    })
+
+-- Size Slider
+Tabs.Client:AddSlider("Size", {
+        Title = "Size",
+        Description = "",
+        Default = 2,
+        Min = 1,
+        Max = 100,
+        Rounding = 1,
+        Callback = function(Value)
+            print("Size was changed:", Value)
+            game.Players.LocalPlayer.Character.HumanoidRootPart.Size = Vector3.new(Value, Value, Value)
+        end
+    })
+
+Tabs.AutoFarm:AddParagraph({
+        Title = "Reps",
+        Content = ""
+    })
+
+-- Auto Farm Toggle
+local AutoFarmToggle = Tabs.AutoFarm:AddToggle("Auto Farm", {Title = "Turn this on before using the tools toggles", Default = false })
+
+AutoFarmToggle:OnChanged(function(Value)
+    if Value then
+        while AutoFarmToggle.Value do
+            local args = { [1] = "rep" }
+            -- Fire the muscle event on the server
+            game:GetService("Players").LocalPlayer:WaitForChild("muscleEvent"):FireServer(unpack(args))
+            wait(0.1)  -- Adjust the wait time for frequency of the event firing
+        end
+    end
+end)
+
+Tabs.AutoFarm:AddParagraph({
+        Title = "Tools",
+        Content = ""
+    })
+
+-- Weight Tool Toggle
+local WeightToggle = Tabs.AutoFarm:AddToggle("Weight", {Title = "Equips Weight Tool", Default = false })
+
+WeightToggle:OnChanged(function(Value)
+    if Value then
+        while WeightToggle.Value do
+            local backpack = game.Players.LocalPlayer.Backpack
+            local weightTool = backpack:FindFirstChild("Weight")
+            if weightTool then
+                weightTool.Parent = backpack
+            end
+            wait(0.1)  -- Adjust the wait time for equipping
+        end
+    end
+end)
+
+-- Pushups Tool Toggle
+local PushupsToggle = Tabs.AutoFarm:AddToggle("Pushups", {Title = "Equips Pushups Tool", Default = false })
+
+PushupsToggle:OnChanged(function(Value)
+    if Value then
+        while PushupsToggle.Value do
+            local backpack = game.Players.LocalPlayer.Backpack
+            local pushupsTool = backpack:FindFirstChild("Pushups")
+            if pushupsTool then
+                pushupsTool.Parent = backpack
+            end
+            wait(0.1)  -- Adjust the wait time for equipping
+        end
+    end
+end)
+
+-- Handstands Tool Toggle
+local HandstandsToggle = Tabs.AutoFarm:AddToggle("Handstands", {Title = "Equips Handstands Tool", Default = false })
+
+HandstandsToggle:OnChanged(function(Value)
+    if Value then
+        while HandstandsToggle.Value do
+            local backpack = game.Players.LocalPlayer.Backpack
+            local handstandsTool = backpack:FindFirstChild("Handstands")
+            if handstandsTool then
+                handstandsTool.Parent = backpack
+            end
+            wait(0.1)  -- Adjust the wait time for equipping
+        end
+    end
+end)
+
+-- Situps Tool Toggle
+local SitupsToggle = Tabs.AutoFarm:AddToggle("Situps", {Title = "Equips Situps Tool", Default = false })
+
+SitupsToggle:OnChanged(function(Value)
+    if Value then
+        while SitupsToggle.Value do
+            local backpack = game.Players.LocalPlayer.Backpack
+            local situpsTool = backpack:FindFirstChild("Situps")
+            if situpsTool then
+                situpsTool.Parent = backpack
+            end
+            wait(0.1)  -- Adjust the wait time for equipping
+        end
+    end
+end)
