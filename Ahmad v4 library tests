@@ -143,3 +143,77 @@ Tabs.Main:AddButton({
         end
     end
 })
+
+AutoFarm = Window:AddTab({ Title = "Auto Farm", Icon = "scan-face" })
+
+Tabs.AutoFarm:AddParagraph({
+    Title = "Auto Farming",
+    Content = "Automate orb collection and farming actions."
+})
+
+-- Dropdown for selecting city
+local CityDropdown = Tabs.AutoFarm:AddDropdown("Select City", {
+    Title = "Select City",
+    Values = {"City", "Snow City", "Magma City", "Jungle City"},
+    Multi = false,
+    Default = 1,
+})
+
+CityDropdown:SetValue("City")
+
+CityDropdown:OnChanged(function(Value)
+    print("City selected:", Value)
+end)
+
+-- Dropdown for selecting orb
+local OrbDropdown = Tabs.AutoFarm:AddDropdown("Select Orb", {
+    Title = "Select Orb",
+    Values = {"Red Orb", "Orange Orb", "Blue Orb", "Yellow Orb", "Gems", "Ethereal Orb"},
+    Multi = false,
+    Default = 1,
+})
+
+OrbDropdown:SetValue("Red Orb")
+
+OrbDropdown:OnChanged(function(Value)
+    print("Orb selected:", Value)
+end)
+
+-- Dropdown for selecting farming mode
+local FarmingModeDropdown = Tabs.AutoFarm:AddDropdown("Select Farming Mode", {
+    Title = "Select Farming Mode",
+    Values = {"Slow", "Normal", "Fast", "Super Fast"},
+    Multi = false,
+    Default = 1,
+})
+
+FarmingModeDropdown:SetValue("Normal")
+
+FarmingModeDropdown:OnChanged(function(Value)
+    print("Farming Mode selected:", Value)
+end)
+
+-- Toggle for starting the farming
+local Toggle = Tabs.AutoFarm:AddToggle("Start Farming", {Title = "Start Farming", Default = false})
+
+Toggle:OnChanged(function()
+    local city = CityDropdown.Value
+    local orb = OrbDropdown.Value
+    
+    if Toggle.Value then
+        -- When toggle is on, start farming indefinitely
+        while Toggle.Value do
+            local args = {
+                [1] = "collectOrb",
+                [2] = orb, -- Replace "Red Orb" with selected orb
+                [3] = city -- Replace "City" with selected city
+            }
+
+            wait(0.1)
+
+            game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("orbEvent"):FireServer(unpack(args))
+            
+            wait(0.1)
+        end
+    end
+end)
