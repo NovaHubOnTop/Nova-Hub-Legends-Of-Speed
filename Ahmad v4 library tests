@@ -21,6 +21,53 @@ local Tabs = {
     AutoRacing = Window:AddTab({ Title = "Auto Racing", Icon = "car" })
 }
 
+-- Rebirthing Tab
+Tabs.Rebirthing:AddParagraph({
+    Title = "Rebirth",
+    Content = "Automatically rebirth once the target amount is reached."
+})
+
+-- Rebirth Target Input
+local RebirthTargetInput = Tabs.Rebirthing:AddInput("RebirthTarget", {
+    Title = "Rebirth Target",
+    Default = "0",
+    Placeholder = "Enter target number of rebirths",
+    Numeric = true,
+    Finished = true,
+    Callback = function(Value) 
+        print("Rebirth target input changed:", Value)
+    end
+})
+
+RebirthTargetInput:OnChanged(function() end)
+
+-- Auto Rebirth Toggle
+local AutoRebirthToggle = Tabs.Rebirthing:AddToggle("Auto Rebirth", {
+    Title = "Auto Rebirth",
+    Default = false
+})
+
+AutoRebirthToggle:OnChanged(function()
+    local rebirthTarget = tonumber(RebirthTargetInput.Value)
+    if AutoRebirthToggle.Value then
+        -- Continuously rebirth if Auto Rebirth is enabled
+        while AutoRebirthToggle.Value do
+            local currentRebirth = game.Players.LocalPlayer:FindFirstChild("Rebirths")
+            if currentRebirth and currentRebirth.Value >= rebirthTarget then
+                local args = {
+                    [1] = "rebirthRequest"
+                }
+                -- Ensure the rebirth event exists before firing it
+                local rebirthEvent = game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthEvent")
+                if rebirthEvent then
+                    rebirthEvent:FireServer(unpack(args))
+                end
+            end
+            wait(0.1)  -- Repeat every 0.1 seconds
+        end
+    end
+end)
+
 -- Discord Server Button
 Tabs.Home:AddButton({
     Title = "Discord Server",
@@ -334,3 +381,32 @@ FinishToggle:OnChanged(function()
         end
     end
 end)
+
+-- Rebirthing Tab
+local RebirthToggle = Tabs.Rebirthing:AddToggle("Enable Rebirth", {
+    Title = "Enable Rebirth",
+    Default = false
+})
+
+RebirthToggle:OnChanged(function()
+    if RebirthToggle.Value then
+        while RebirthToggle.Value do
+            -- Replace this with the rebirth method for your game
+            -- Example for Muscle Legends rebirth:
+            local rebirthEvent = game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthEvent")
+            rebirthEvent:FireServer()  -- Trigger rebirth event
+            wait(5)  -- Wait 5 seconds before trying to rebirth again
+        end
+    end
+end)
+
+-- Rebirth Button to manually rebirth
+Tabs.Rebirthing:AddButton({
+    Title = "Rebirth",
+    Description = "Manually rebirth",
+    Callback = function()
+        -- Replace this with the rebirth method for your game
+        local rebirthEvent = game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthEvent")
+        rebirthEvent:FireServer()  -- Trigger rebirth event
+    end
+})
